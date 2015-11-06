@@ -59,5 +59,5 @@ echo ""
 
 # Start installation
 echo "Starting build..."
-./hashdist/bin/hit build -j 4
+./hashdist/bin/hit build -j 4 -k always
 
