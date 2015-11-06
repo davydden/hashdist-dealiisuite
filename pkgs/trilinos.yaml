@@ -1,0 +1,68 @@
+extends: [cmake_package]
+dependencies:
+  build: [mpi, suitesparse, superlu_dist, parmetis, 
+          hdf5, glm]
+
+sources:
+- key: tar.bz2:jkee7vpo7ccycxjf7qsmljfzlzpgpopo
+  url: https://trilinos.org/oldsite/download/files/trilinos-12.2.1-Source.tar.bz2
+
+defaults:
+  # include/trilinos/Makefile.export.Trilinos contains hard-coded path
+  relocatable: false
+  # Build Teuchos in Debug mode (RCP/Ptr dangling pointer checks, bounds
+  # checks, ...)
+  teuchos_debug: false
+
+build_stages:
+- name: configure
+  mode: override
+  extra: ['-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
+          '-D CMAKE_C_COMPILER:FILEPATH=${MPICC}',
+          '-D Trilinos_INSTALL_INCLUDE_DIR:PATH=include/trilinos',
+          '-D TPL_ENABLE_MPI:BOOL=ON',
+          '-D Trilinos_ENABLE_OpenMP:BOOL=OFF',
+          '-D TPL_ENABLE_TBB:BOOL=OFF',
+          '-D Trilinos_ENABLE_Didasko:BOOL=ON',
+          '-D Trilinos_ENABLE_Sacado:BOOL=ON',
+          '-D Trilinos_ENABLE_Stratimikos:BOOL=ON',
+          '-D Trilinos_ENABLE_Belos:BOOL=ON',
+          '-D Trilinos_ENABLE_MueLu:BOOL=ON',
+          '-D Trilinos_ENABLE_Amesos2:BOOL=ON',
+          '-D CMAKE_BUILD_TYPE:STRING=RELEASE',
+          '-D CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE',
+          '-D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE',
+          '-D BUILD_SHARED_LIBS:BOOL=ON',
+          '-D Trilinos_ENABLE_Epetra:BOOL=ON',
+          '-D Trilinos_ENABLE_ML:BOOL=ON',
+          '-D Trilinos_ENABLE_TESTS:BOOL=OFF',
+          '-D Trilinos_ENABLE_EXAMPLES:BOOL=OFF',
+          '-D TPL_ENABLE_UMFPACK:BOOL=ON',
+          '-D BLAS_LIBRARY_NAMES:STRING="blas;lapack"',
+          '-D BLAS_LIBRARY_DIRS:PATH=/usr/lib',
+          '-D LAPACK_LIBRARY_NAMES:STRING="blas;lapack"',
+          '-D LAPACK_LIBRARY_DIRS:PATH=/usr/lib',
+          '-D UMFPACK_INCLUDE_DIRS:PATH=${SUITESPARSE_DIR}/include/suitesparse',
+          '-D UMFPACK_LIBRARY_DIRS:PATH=${SUITESPARSE_DIR}/lib',
+          '-D UMFPACK_LIBRARY_NAMES:STRING="umfpack;cholmod;camd;ccolamd;colamd;amd;suitesparseconfig"',
+          '-D Trilinos_ENABLE_DEVELOPMENT_MODE:BOOL=OFF',
+          '-D CMAKE_CXX_FLAGS:STRING=-fPIC -g -O3',
+          '-D CMAKE_C_FLAGS:STRING=-fPIC -g -O3',
+          '-D CMAKE_FORTRAN_FLAGS:STRING=-g -O5',
+          '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-lgfortran',
+          '-D TPL_ENABLE_ParMETIS:BOOL=ON',
+          '-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so',
+          '-D TPL_ParMETIS_INCLUDE_DIRS:PATH=${PARMETIS_DIR}/include',
+          '-D TPL_ENABLE_SuperLUDist:BOOL=ON',
+          '-D TPL_SuperLUDist_LIBRARIES:FILEPATH=${SUPERLU_DIST_DIR}/lib/libsuperlu_dist.a',
+          '-D SuperLUDist_INCLUDE_DIRS:PATH=${SUPERLU_DIST_DIR}/include/superlu',
+          '-D HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG:BOOL=ON']
+
+- when: teuchos_debug
+  name: configure
+  mode: update
+  extra: ['-D Teuchos_ENABLE_DEBUG:BOOL=ON']
+
+when_build_dependency:
+- prepend_path: PYTHONPATH
+  value: '${ARTIFACT}/lib/python{{pyver}}/site-packages'

@@ -1,0 +1,50 @@
+extends: [cmake_package]
+dependencies:
+  build: [blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc, {{build_with}}]
+
+#sources:
+#- key: tar.gz:jxpxeyzowua6dsau4km7gl6aj7libvx5
+#  url: https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz
+
+sources:
+- url: https://github.com/dealii/dealii.git
+  key: git:8c63014161326a659a0e3e450c4ea5a499b99a30 
+
+
+defaults:
+  relocatable: false
+
+build_stages:
+- name: configure
+  mode: override
+  extra: ['-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
+          '-D CMAKE_C_COMPILER:FILEPATH=${MPICC}',
+          '-D METIS_DIR=${PARMETIS_DIR}',
+          '-D P4EST_DIR=${P4EST_DIR}',
+          '-D HDF5_DIR=${HDF5_DIR}',
+          '-D TRILINOS_DIR=${TRILINOS_DIR}',
+          '-D PETSC_DIR=${PETSC_DIR}',
+          '-D SLEPC_DIR=${SLEPC_DIR}',
+          '-D CMAKE_BUILD_TYPE=DebugRelease',
+          '-D DEAL_II_COMPONENT_DOCUMENTATION:BOOL=OFF',
+          '-D DEAL_II_WITH_ARPACK:BOOL=OFF',
+          '-D DEAL_II_WITH_BOOST:BOOL=ON',
+          '-D DEAL_II_FORCE_BUNDLED_BOOST:BOOL=OFF',
+          '-D DEAL_II_WITH_FUNCTIONPARSER:BOOL=ON',
+          '-D DEAL_II_WITH_LAPACK:BOOL=ON',
+          '-D DEAL_II_WITH_METIS:BOOL=ON',
+          '-D DEAL_II_WITH_MPI:BOOL=ON',
+          '-D DEAL_II_WITH_NETCDF:BOOL=OFF',
+          '-D DEAL_II_WITH_OPENCASCADE:BOOL=OFF',
+          '-D DEAL_II_WITH_P4EST:BOOL=ON',
+          '-D DEAL_II_WITH_PETSC:BOOL=ON',
+          '-D DEAL_II_WITH_SLEPC:BOOL=ON',
+          '-D DEAL_II_WITH_THREADS:BOOL=ON',
+          '-D DEAL_II_FORCE_BUNDLED_THREADS:BOOL=OFF',
+          '-D DEAL_II_WITH_TRILINOS:BOOL=ON',
+          '-D DEAL_II_WITH_UMFPACK:BOOL=ON',
+          '-D DEAL_II_FORCE_BUNDLED_UMFPACK:BOOL=OFF',
+          '-D DEAL_II_WITH_ZLIB:BOOL=ON',
+          '-D DEAL_II_WITH_HDF5:BOOL=ON',
+          '-D DEAL_II_COMPONENT_MESH_CONVERTER:BOOL=ON',
+          '-D DEAL_II_COMPONENT_PARAMETER_GUI=OFF']

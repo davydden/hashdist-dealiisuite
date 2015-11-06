@@ -1,0 +1,4 @@
+when_build_dependency:
+  - {set: 'LAPACK_NAMES', value: 'lapack'}
+  - {set: 'LAPACK_LDFLAGS', value: '-llapack'}
+  - {set: 'LAPACK_DIR', value: '/usr'}
