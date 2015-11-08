@@ -3,7 +3,11 @@ extends:
  - file: osx_clt_fortran.yaml
 
 # make sure things are compiled with clang for C/C++
-# and hope that gfortran will be picked up automatically where needed
+# and hope that gfortran will be picked up automatically where needed.
+# In case of problems, append
+# - {set: 'FC', value: "${ARTIFACT}/bin/gfortran"}
+# - {set: 'F77', value: "${ARTIFACT}/bin/gfortran"}
+# to when_build_dependency: of GCC
 parameters:
   PROLOGUE: |
     export CC=clang; export CXX=clang++;
@@ -25,26 +29,32 @@ packages:
     build_with: |
       gcc
 ## deal.II suite:
-#  hypre:
-#    with_openblas: false
-#    without_check: true
-#  parmetis:
-#  superlu_dist:
-#  suitesparse:
-#  petsc:
-#    version: '3.6.1'
-#    fortran: true
-#    build_with: |
-#      hypre, parmetis, suitesparse, superlu_dist
+  hypre:
+    without_check: true
+  parmetis:
+  superlu_dist:
+    without_check: true # something is not working here... :(
+  suitesparse:
+# hypre did not work with petsc
+  petsc:
+    version: '3.6.1'
+    fortran: true
+    build_with: |
+      parmetis, suitesparse, superlu_dist
 #    download: |
 #      mumps, scalapack, blacs
-##    coptflags: -O2
-#    link: shared
-##    debug: true
-#  slepc:
-#    version: '3.6.1'
-#  trilinos:
-#  p4est:
+    coptflags: -O2
+    link: shared
+#    debug: true
+  slepc:
+    version: '3.6.1'
+# hdf5 needs szip:
+  szip:
+  hdf5:
+# trilinos needs glm
+  glm:
+#  trilinos: # Amesos and superlu issues, as always...
+  p4est:
 #  dealii:
 #    build_with: |
 #      blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
