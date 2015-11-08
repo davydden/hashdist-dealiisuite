@@ -1,0 +1,44 @@
+# Profiles that this profile should extend from
+extends:
+ - file: osx_clt_fortran.yaml
+
+# make sure things are compiled with clang for C/C++
+# and hope that gfortran will be picked up automatically where needed
+parameters:
+  PROLOGUE: |
+    export CC=clang; export CXX=clang++;
+
+# The packages to build
+# The use parameter makes use of a different package name for the package given, 
+# e.g., package specs for openmpi will be searched and built to satisfy the mpi package.
+# The skip parameter says that a package should not be built 
+packages:
+  cmake:
+  python:
+    host: true
+  blas:
+    use: host-osx-framework-accelerate
+  lapack:
+    use: host-osx-framework-accelerate
+#  mpi:
+#    use: openmpi
+#  hdf5:
+#  hypre:
+#    without_check: true
+#  superlu:
+#  doxygen:
+#  netcdf4:
+#  netcdf4f:
+#  netcdf4cpp:
+#  petsc:
+#    build_with: |
+#      hypre
+#, parmetis, scotch, suitesparse, superlu_dist, hypre
+#    download: |
+#      mumps, scalapack, blacs, ml
+#    coptflags: -O2
+#    link: shared
+#    debug: true
+#  dealii:
+#    build_with: petsc
+  

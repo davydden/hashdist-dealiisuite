@@ -1,0 +1,27 @@
+# Profiles that this profile should extend from
+extends:
+ - file: hashstack/osx_clt.yaml
+
+# Global parameters set for all packages.
+# parameters can be used inside as {{param_name}}
+parameters:
+  fortran: true
+  debug: false
+
+# Directories to search for package specification files
+package_dirs:
+- pkgs
+- hashstack
+
+packages:
+  launcher:
+# gcc dependencies:
+  zlib:
+    use: host-zlib
+  mpfr:
+  mpc:
+  gmp:
+  isl:
+  cloog:
+  gnu-sed:
+  gcc:
