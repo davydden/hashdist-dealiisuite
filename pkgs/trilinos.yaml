@@ -51,12 +51,21 @@ build_stages:
           '-D CMAKE_FORTRAN_FLAGS:STRING=-g -O5',
           '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-lgfortran',
           '-D TPL_ENABLE_ParMETIS:BOOL=ON',
-          '-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so',
           '-D TPL_ParMETIS_INCLUDE_DIRS:PATH=${PARMETIS_DIR}/include',
           '-D TPL_ENABLE_SuperLUDist:BOOL=ON',
           '-D TPL_SuperLUDist_LIBRARIES:FILEPATH=${SUPERLU_DIST_DIR}/lib/libsuperlu_dist.a',
           '-D SuperLUDist_INCLUDE_DIRS:PATH=${SUPERLU_DIST_DIR}/include/superlu',
           '-D HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG:BOOL=ON']
+
+- when: platform == 'Darwin'
+  name: configure
+  mode: update
+  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.dylib']
+
+- when: not platform == 'Darwin'
+  name: configure
+  mode: update
+  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so']
 
 - when: teuchos_debug
   name: configure
