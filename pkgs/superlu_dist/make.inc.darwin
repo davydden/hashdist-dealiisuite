@@ -1,0 +1,21 @@
+PLAT         = _mac_x
+DSuperLUroot = $(BUILD)
+DSUPERLULIB  = $(DSuperLUroot)/lib/libsuperlu_dist.a
+BLASDEF      = -DUSE_VENDOR_BLAS
+BLASLIB      = $(BLAS_LDFLAGS) $(LAPACK_LDFLAGS)
+INCS         = -I$(PARMETIS_DIR)/include
+METISLIB     = -Wl,-rpath,$(PARMETIS_DIR)/lib -L$(PARMETIS_DIR)/lib -lmetis
+PARMETISLIB  = -Wl,-rpath,$(PARMETIS_DIR)/lib -L$(PARMETIS_DIR)/lib -lparmetis
+LIBS         = $(DSUPERLULIB) $(BLASLIB) $(PARMETISLIB) $(METISLIB)
+ARCH         = ar
+ARCHFLAGS    = cr
+RANLIB       = true
+CC           = $(MPICC)
+CFLAGS       = -fPIC -std=c99 -O2 $(INCS)
+NOOPTS       = -fPIC -std=c99
+FORTRAN      = $(MPIF77)
+F90FLAGS     = -O2
+LOADER       = $(MPIF77)
+LOADER       = $(MPICC)
+LOADOPTS     =
+CDEFS        = -DAdd_

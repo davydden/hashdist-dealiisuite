@@ -1,0 +1,18 @@
+PLAT         = _linux
+DSuperLUroot = $(BUILD)
+DSUPERLULIB  = $(DSuperLUroot)/lib/libsuperlu_dist.a
+BLASDEF      = -DUSE_VENDOR_BLAS
+BLASLIB      = $(BLAS_LDFLAGS) $(LAPACK_LDFLAGS)
+INCS         = -I$(PARMETIS_DIR)/include
+METISLIB     = -Wl,-rpath,$(PARMETIS_DIR)/lib -L$(PARMETIS_DIR)/lib -lmetis
+PARMETISLIB  = -Wl,-rpath,$(PARMETIS_DIR)/lib -L$(PARMETIS_DIR)/lib -lparmetis
+LIBS         = $(DSUPERLULIB) $(BLASLIB) $(PARMETISLIB) $(METISLIB)
+ARCH         = ar
+ARCHFLAGS    = cr
+RANLIB       = ranlib
+CC           = $(MPICC)
+CFLAGS       = -O2 -fPIC -std=c99 $(INCS)
+NOOPTS       = -fPIC
+LOADER       = $(MPICC)
+LOADOPTS     =
+CDEFS        = -DAdd_
