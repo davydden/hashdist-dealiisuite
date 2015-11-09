@@ -1,7 +1,13 @@
 extends: [cmake_package]
-dependencies:
-  build: [mpi, suitesparse, superlu_dist, parmetis, 
-          hdf5, glm]
+when platform == 'Darwin':
+  dependencies:
+    build: [mpi, suitesparse, superlu_dist, parmetis, 
+            hdf5, glm,gcc]
+
+when platform != 'Darwin':
+  dependencies:
+    build: [mpi, suitesparse, superlu_dist, parmetis, 
+            hdf5, glm]
 
 sources:
 - key: tar.bz2:jkee7vpo7ccycxjf7qsmljfzlzpgpopo
@@ -44,6 +50,8 @@ build_stages:
           '-D Trilinos_ENABLE_ML:BOOL=ON',
           '-D Trilinos_ENABLE_TESTS:BOOL=OFF',
           '-D Trilinos_ENABLE_EXAMPLES:BOOL=OFF',
+          '-D Teuchos_ENABLE_COMPLEX:BOOL=OFF',
+          '-D KokkosTSQR_ENABLE_Complex:BOOL=OFF',
           '-D TPL_ENABLE_UMFPACK:BOOL=ON',
           '-D BLAS_LIBRARY_NAMES:STRING="blas;lapack"',
           '-D BLAS_LIBRARY_DIRS:PATH=/usr/lib',
@@ -56,7 +64,6 @@ build_stages:
           '-D CMAKE_CXX_FLAGS:STRING=-fPIC -g -O3',
           '-D CMAKE_C_FLAGS:STRING=-fPIC -g -O3',
           '-D CMAKE_FORTRAN_FLAGS:STRING=-g -O5',
-          '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-lgfortran',
           '-D TPL_ENABLE_ParMETIS:BOOL=ON',
           '-D TPL_ParMETIS_INCLUDE_DIRS:PATH=${PARMETIS_DIR}/include',
           '-D TPL_ENABLE_SuperLUDist:BOOL=ON',
@@ -67,12 +74,14 @@ build_stages:
 - when: platform == 'Darwin'
   name: configure
   mode: update
-  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.dylib']
+  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.dylib',
+          '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-L${GCC_DIR}/lib -lgfortran']
 
 - when: not platform == 'Darwin'
   name: configure
   mode: update
-  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so']
+  extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so',
+          '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-lgfortran']
 
 - when: teuchos_debug
   name: configure
