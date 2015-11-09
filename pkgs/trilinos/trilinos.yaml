@@ -15,6 +15,13 @@ defaults:
   teuchos_debug: false
 
 build_stages:
+- name: patch
+  before: configure
+  files: [fix.patch]
+  handler: bash
+  bash: |
+    patch -p1 < _hashdist/fix.patch
+
 - name: configure
   mode: override
   extra: ['-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
