@@ -30,17 +30,15 @@ packages:
       gcc
 ## deal.II suite:
   hypre:
-    without_check: true
+    with_accelerate: true
   parmetis:
   superlu_dist:
-    without_check: true # something is not working here... :(
   suitesparse:
-# hypre did not work with petsc
   petsc:
     version: '3.6.1'
     fortran: true
     build_with: |
-      parmetis, suitesparse, superlu_dist
+      parmetis, suitesparse, superlu_dist, hypre
 #    download: |
 #      mumps, scalapack, blacs
     coptflags: -O2
@@ -53,9 +51,11 @@ packages:
   hdf5:
 # trilinos needs glm
   glm:
-#  trilinos: # Amesos and superlu issues, as always...
+  trilinos:
+    build_with: |
+      gcc
   p4est:
-#  dealii:
-#    build_with: |
-#      blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
+  dealii:
+    build_with: |
+      blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
   
