@@ -23,6 +23,7 @@ package_dirs:
 # adjust MKLROOT/MKLPATH and PROLOGUE accordingly
 #
 parameters:
+  python_host_packages: '/usr/lib/python2.6/site-packages'
 # host-mpi:
   HOST_MPICC: mpicc
   HOST_MPICXX: mpicxx # mpic++
@@ -44,6 +45,11 @@ packages:
   launcher:
   cmake:
     use: host-cmake
+  python:
+    host: true
+    use_python_host_packages: true
+#    build_with: |
+#      bzip2, sqlite
   mpi:
     use: host-mpi
   blas:
@@ -69,9 +75,13 @@ packages:
     coptflags: -O3 -march=native -mtune=native
     link: shared
     debug: false
-#  slepc:
-#    version: '3.6.1'
-#  trilinos:
+  slepc:
+    version: '3.6.1'
+  boost:
+    toolset: intel-linux
+    address_model: 64
+  trilinos:
+    with_mkl: true
 #  p4est:
 #  dealii:
 #    build_with: |

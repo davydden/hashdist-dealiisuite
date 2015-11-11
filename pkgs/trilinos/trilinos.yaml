@@ -1,12 +1,12 @@
 extends: [cmake_package]
 when platform == 'Darwin':
   dependencies:
-    build: [mpi, suitesparse, superlu_dist, parmetis, 
+    build: [mpi, suitesparse, superlu_dist, parmetis,
             hdf5, glm,gcc]
 
 when platform != 'Darwin':
   dependencies:
-    build: [mpi, suitesparse, superlu_dist, parmetis, 
+    build: [mpi, boost, suitesparse, superlu_dist, parmetis,
             hdf5, glm]
 
 sources:
@@ -19,6 +19,8 @@ defaults:
   # Build Teuchos in Debug mode (RCP/Ptr dangling pointer checks, bounds
   # checks, ...)
   teuchos_debug: false
+  # build with mkl
+  with_mkl: false
 
 build_stages:
 - name: patch
@@ -53,10 +55,6 @@ build_stages:
           '-D Teuchos_ENABLE_COMPLEX:BOOL=OFF',
           '-D KokkosTSQR_ENABLE_Complex:BOOL=OFF',
           '-D TPL_ENABLE_UMFPACK:BOOL=ON',
-          '-D BLAS_LIBRARY_NAMES:STRING="blas;lapack"',
-          '-D BLAS_LIBRARY_DIRS:PATH=/usr/lib',
-          '-D LAPACK_LIBRARY_NAMES:STRING="blas;lapack"',
-          '-D LAPACK_LIBRARY_DIRS:PATH=/usr/lib',
           '-D UMFPACK_INCLUDE_DIRS:PATH=${SUITESPARSE_DIR}/include/suitesparse',
           '-D UMFPACK_LIBRARY_DIRS:PATH=${SUITESPARSE_DIR}/lib',
           '-D UMFPACK_LIBRARY_NAMES:STRING="umfpack;cholmod;camd;ccolamd;colamd;amd;suitesparseconfig"',
@@ -70,6 +68,22 @@ build_stages:
           '-D TPL_SuperLUDist_LIBRARIES:FILEPATH=${SUPERLU_DIST_DIR}/lib/libsuperlu_dist.a',
           '-D SuperLUDist_INCLUDE_DIRS:PATH=${SUPERLU_DIST_DIR}/include/superlu',
           '-D HAVE_SUPERLUDIST_LUSTRUCTINIT_2ARG:BOOL=ON']
+
+- when: with_mkl
+  name: configure
+  mode: update
+  extra: ['-D BLAS_LIBRARY_NAMES:STRING="mkl_intel_lp64;mkl_sequential;mkl_core;pthread;m"',
+          '-D BLAS_LIBRARY_DIRS:PATH=${MKLPATH}',
+          '-D LAPACK_LIBRARY_NAMES:STRING="mkl_intel_lp64;mkl_sequential;mkl_core;pthread;m"',
+          '-D LAPACK_LIBRARY_DIRS:PATH=${MKLPATH}']
+
+- when: not with_accelerate and not with_openblas and not with_mkl
+  name: configure
+  mode: update
+  extra: ['-D BLAS_LIBRARY_NAMES:STRING="blas;lapack"',
+          '-D BLAS_LIBRARY_DIRS:PATH=/usr/lib',
+          '-D LAPACK_LIBRARY_NAMES:STRING="blas;lapack"',
+          '-D LAPACK_LIBRARY_DIRS:PATH=/usr/lib']
 
 - when: platform == 'Darwin'
   name: configure
