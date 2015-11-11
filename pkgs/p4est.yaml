@@ -10,8 +10,21 @@ defaults:
   relocatable: false
 
 build_stages:
+- name: set-compiler
+  after: prologue
+  before: configure
+  handler: bash
+  bash: |
+    export CC=${MPICC}
+    export CXX=${MPICXX}
+    export F77=${MPIF77}
+    export FC=${MPIF77}
+    export CFLAGS="-fPIC ${CFLAGS}"
+    export CXXFLAGS="-fPIC ${CXXFLAGS}"
+    export FFLAGS="-fPIC ${FFLAGS}"
 
-- name: configure
+- when: not with_mkl
+  name: configure
   mode: replace # !!
   handler: bash
   bash: |
@@ -21,3 +34,13 @@ build_stages:
                 --disable-vtk-binary \
                 BLAS_LIBS="-lblas -llapack"
 
+- when: with_mkl
+  name: configure
+  mode: replace # !!
+  handler: bash
+  bash: |
+    ./configure --prefix=${ARTIFACT} \
+                --enable-mpi \
+                --enable-shared \
+                --disable-vtk-binary \
+                BLAS_LIBS="${BLAS_LDFLAGS}"

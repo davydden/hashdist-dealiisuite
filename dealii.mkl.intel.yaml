@@ -83,7 +83,8 @@ packages:
   trilinos:
     with_mkl: true
     ignore_cxx_seek: true
-#  p4est:
+  p4est:
+    with_mkl: true
 #  dealii:
 #    build_with: |
 #      blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
