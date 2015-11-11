@@ -21,6 +21,8 @@ defaults:
   teuchos_debug: false
   # build with mkl
   with_mkl: false
+  # extra flags for mpich, see https://trilinos.org/pipermail/trilinos-users/2010-December/002141.html and https://software.intel.com/en-us/articles/intel-mpi-library-for-linux-running-list-of-known-issues#A3
+  ignore_cxx_seek: false
 
 build_stages:
 - name: patch
@@ -59,7 +61,6 @@ build_stages:
           '-D UMFPACK_LIBRARY_DIRS:PATH=${SUITESPARSE_DIR}/lib',
           '-D UMFPACK_LIBRARY_NAMES:STRING="umfpack;cholmod;camd;ccolamd;colamd;amd;suitesparseconfig"',
           '-D Trilinos_ENABLE_DEVELOPMENT_MODE:BOOL=OFF',
-          '-D CMAKE_CXX_FLAGS:STRING=-fPIC -g -O3',
           '-D CMAKE_C_FLAGS:STRING=-fPIC -g -O3',
           '-D CMAKE_FORTRAN_FLAGS:STRING=-g -O5',
           '-D TPL_ENABLE_ParMETIS:BOOL=ON',
@@ -96,6 +97,16 @@ build_stages:
   mode: update
   extra: ['-D TPL_ParMETIS_LIBRARIES:FILEPATH=${PARMETIS_DIR}/lib/libparmetis.so',
           '-D Trilinos_EXTRA_LINK_FLAGS:STRING=-lgfortran']
+
+- when: ignore_cxx_seek
+  name: configure
+  mode: update
+  extra: ['-D CMAKE_CXX_FLAGS:STRING="-fPIC -g -O3 -DMPICH_IGNORE_CXX_SEEK"']
+
+- when: not ignore_cxx_seek
+  name: configure
+  mode: update
+  extra: ['-D CMAKE_CXX_FLAGS:STRING=-fPIC -g -O3']
 
 - when: teuchos_debug
   name: configure

@@ -36,7 +36,7 @@ parameters:
 # host-cmake:
   HOST_CMAKE: cmake
   PROLOGUE: |
-    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load intelmpi; module load intel64; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load intel64/14.0up03; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
 
 #echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl;
 #    source /usr/share/Modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel/2015.3; openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
@@ -82,6 +82,7 @@ packages:
     address_model: 64
   trilinos:
     with_mkl: true
+    ignore_cxx_seek: true
 #  p4est:
 #  dealii:
 #    build_with: |
