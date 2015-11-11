@@ -10,7 +10,7 @@
 # module load cmake/2.8.11.2
 # module load mkl
 #
-# run with: ./hashdist/bin/hit build -j 4
+# run with: ./hashdist/bin/hit build dealii.mkl.intel.yaml -j 4
 
 extends:
 - file: hashstack/linux.yaml
@@ -23,16 +23,19 @@ package_dirs:
 # adjust MKLROOT/MKLPATH and PROLOGUE accordingly
 #
 parameters:
+# host-mpi:
   HOST_MPICC: mpicc
-  HOST_MPICXX: mpic++
+  HOST_MPICXX: mpicxx # mpic++
   HOST_MPIF77: mpif77
   HOST_MPIF90: mpif90
-  HOST_MPIEXEC: mpiexec
+  HOST_MPIEXEC: mpiexec.hydra # mpiexec
+# host-mkl:
   HOST_MKLROOT: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl
   HOST_MKLPATH: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl/lib/intel64
+# host-cmake:
   HOST_CMAKE: cmake
   PROLOGUE: |
-    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load intelmpi; module load intel64; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
 
 #echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl;
 #    source /usr/share/Modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel/2015.3; openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
@@ -49,6 +52,7 @@ packages:
     use: host-mkl
   hypre:
     with_mkl: true
+    without_check: true
 #  parmetis:
 #  superlu_dist:
 #  suitesparse:
