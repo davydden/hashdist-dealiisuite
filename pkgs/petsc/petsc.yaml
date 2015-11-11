@@ -1,0 +1,77 @@
+extends: [autotools_package]
+dependencies:
+  build: [blas, mpi, python, {{build_with}}]
+
+when version == '3.6.1':
+  sources:
+  - key: tar.gz:v2wbaflfus5gbhb7h4j23jdvoif42mve
+    url: http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.1.tar.gz
+when version == '3.5.2':
+  sources:
+  - key: tar.gz:ygj3gebgevuuwg5evyrgenkhf3ry5b2d
+    url: http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.5.2.tar.gz
+
+defaults:
+  # /include/petscconfiginfo.h contains absolute path
+  relocatable: false
+  fortran: false
+  debug: false
+  version: '3.5.2'
+  # Build with Intel MKL
+  #with_mkl: false
+
+build_stages: 
+
+# This patch did not go into 3.4.3 :(
+- when: platform == 'Cygwin'
+  name: fix_dll_detection
+  files: [fix_dll_link_detection.patch]
+  before: configure
+  handler: bash
+  bash: |
+    patch -p1 < _hashdist/fix_dll_link_detection.patch
+
+- name: configure ## See petsc.py for details
+  mode: replace
+  after: prologue
+  coptflags: {{coptflags}}
+  with_mkl: {{with_mkl}}
+  link: {{link}}
+  debug: {{debug}}
+  download: [{{download}}]
+
+# PETSc 3.5 does not allow the use of the -j option to make
+-  name: make
+   mode: replace
+   handler: bash
+   after: configure
+   bash: |
+     make
+ 
+-  name: install
+   mode: replace
+   handler: bash
+   after: make
+   bash: |
+     make install
+
+# Special case for OS X, post-fix library rpaths with install_name_tool
+- when: platform == 'Darwin'
+  name: rpath_fix
+  handler: bash
+  after: install
+  bash: |
+    install_name_tool -change libmetis.dylib ${PARMETIS_DIR}/lib/libmetis.dylib ${ARTIFACT}/lib/libpetsc.dylib
+    install_name_tool -change libparmetis.dylib ${PARMETIS_DIR}/lib/libparmetis.dylib ${ARTIFACT}/lib/libpetsc.dylib
+
+# Special case for Cygwin, move DLLs into appropriate directories
+- when: platform == 'Cygwin'
+  name: dll_fix
+  handler: bash
+  after: install
+  bash: |
+    find arch-mswin-*/ -name "*.dll" -exec install -v {} ${ARTIFACT}/bin \;
+
+when_build_dependency:
+- when platform == 'Cygwin':
+  - {prepend_path: PATH, value: '${ARTIFACT}/bin'}
