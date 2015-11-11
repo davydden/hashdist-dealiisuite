@@ -1,0 +1,71 @@
+# git clone https://github.com/hashdist/hashdist.git
+# git clone https://github.com/hashdist/hashstack.git
+# export PATH=hashdist/bin:$PATH
+# hit init-home
+#
+# usefull:
+#   see bash script: hit show script <name>
+#
+# module load openmpi/1.8.3-intel13.1
+# module load cmake/2.8.11.2
+# module load mkl
+#
+# run with: ./hashdist/bin/hit build -j 4
+
+extends:
+- file: hashstack/linux.yaml
+
+package_dirs:
+- pkgs
+- hashstack
+
+#
+# adjust MKLROOT/MKLPATH and PROLOGUE accordingly
+#
+parameters:
+  HOST_MPICC: mpicc
+  HOST_MPICXX: mpic++
+  HOST_MPIF77: mpif77
+  HOST_MPIF90: mpif90
+  HOST_MPIEXEC: mpiexec
+  HOST_MKLROOT: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl
+  HOST_MKLPATH: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl/lib/intel64
+  HOST_CMAKE: cmake
+  PROLOGUE: |
+    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+
+#echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl;
+#    source /usr/share/Modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel/2015.3; openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+
+packages:
+  launcher:
+  cmake:
+    use: host-cmake
+  mpi:
+    use: host-mpi
+  blas:
+    use: host-mkl
+  lapack:
+    use: host-mkl
+  hypre:
+    with_mkl: true
+#  parmetis:
+#  superlu_dist:
+#  suitesparse:
+#  petsc:
+#    version: '3.6.1'
+#    fortran: true
+#    build_with: |
+#      hypre, parmetis, suitesparse, superlu_dist
+#    download: |
+#      mumps, scalapack, blacs, ml
+##    coptflags: -O2
+#    link: shared
+#    debug: true
+#  slepc:
+#    version: '3.6.1'
+#  trilinos:
+#  p4est:
+#  dealii:
+#    build_with: |
+#      blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
