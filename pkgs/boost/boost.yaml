@@ -1,0 +1,102 @@
+extends: [base_package]
+
+dependencies:
+  when platform == 'linux':
+    build: [bzip2, mpi, zlib, patchelf, {{build_with}}]
+  when platform != 'linux':
+    build: [bzip2, mpi, zlib, {{build_with}}]
+
+sources:
+- url: https://downloads.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.bz2
+  key: tar.bz2:oj5jgizc3fbipnrkxmn5fvaxepxminlk
+
+build_stages:
+- name: bootstrap
+  after: prologue
+  handler: bash
+  bash: |
+    ./bootstrap.sh --with-toolset={{toolset}} --prefix=${ARTIFACT}
+
+- name: set-address_model
+  before: bjam
+  handler: bash
+  bash: |
+    address_model={{address_model}}
+    if [ -z ${address_model} ]; then
+        address_model=$(getconf LONG_BIT)
+    fi
+
+- name: bjam
+  after: bootstrap
+  handler: bash
+  when platform != 'Cygwin':
+    bash: |
+      echo "using mpi ;" > user-config.jam
+      ./bjam -q \
+             toolset={{toolset}} \
+             address-model=${address_model} \
+             -j ${HASHDIST_CPU_COUNT} \
+             --user-config=user-config.jam \
+             --build-dir=_build\
+             link=shared \
+             install \
+             -sNO_BZIP2=0 \
+             -sBZIP2_BINARY=bz2 \
+             -sBZIP2_INCLUDE=${BZIP2_DIR}/include \
+             -sBZIP2_LIBPATH=${BZIP2_DIR}/lib \
+             -sNO_ZLIB=0 \
+             -sZLIB_BINARY=z \
+             -sZLIB_INCLUDE=${ZLIB_DIR}/include \
+             -sZLIB_LIBPATH=${ZLIB_DIR}/lib
+  when platform == 'Cygwin':
+    bash: |
+      ./bjam -q \
+             toolset={{toolset}} \
+             address-model=${address_model} \
+             -j ${HASHDIST_CPU_COUNT} \
+             --without-context \
+             --without-coroutine \
+             --without-mpi \
+             --without-python \
+             --build-dir=_build\
+             link=shared \
+             install \
+             -sNO_BZIP2=0 \
+             -sBZIP2_BINARY=bz2 \
+             -sBZIP2_INCLUDE=${BZIP2_DIR}/include \
+             -sBZIP2_LIBPATH=${BZIP2_DIR}/lib \
+             -sNO_ZLIB=0 \
+             -sZLIB_BINARY=z \
+             -sZLIB_INCLUDE=${ZLIB_DIR}/include \
+             -sZLIB_LIBPATH=${ZLIB_DIR}/lib
+
+- when: platform == 'linux'
+  name: rpath_fix
+  after: bjam
+  handler: bash
+  bash: |
+    for lib in ${ARTIFACT}/lib/*.so.*; do
+        ${PATCHELF} --set-rpath ${ARTIFACT}/lib:${BZIP2_DIR}/lib:${ZLIB_DIR}/lib ${lib}
+    done
+
+- when: platform == 'Darwin'
+  name: rpath_fix
+  after: bjam
+  handler: bash
+  bash: |
+    for boostlib in ${ARTIFACT}/lib/libboost_*.dylib; do
+        install_name_tool -add_rpath @loader_path ${boostlib}
+        install_name_tool -id @rpath/$(basename ${boostlib}) ${boostlib}
+        otool -L ${boostlib} | while read line; do
+            set +e  # do not fail on grep below
+            lib=$(echo $line | sed 's/\(libboost_.*\.dylib\).*/\1/' | grep ^libboost_)
+            set -e
+            if [ ! -z ${lib} ]; then
+                install_name_tool -change ${lib} @rpath/${lib} ${boostlib}
+            fi
+        done
+    done
+
+when_build_dependency:
+- set: BOOST_MULTITHREADED
+  value: "OFF"

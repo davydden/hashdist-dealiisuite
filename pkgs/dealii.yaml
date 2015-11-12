@@ -1,3 +1,4 @@
+# TODO: add boost (currently fails to compile)
 extends: [cmake_package]
 dependencies:
   build: [blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc, {{build_with}}]
@@ -8,11 +9,12 @@ dependencies:
 
 sources:
 - url: https://github.com/dealii/dealii.git
-  key: git:8c63014161326a659a0e3e450c4ea5a499b99a30 
+  key: git:8c63014161326a659a0e3e450c4ea5a499b99a30
 
 
 defaults:
   relocatable: false
+  with_mkl: false
 
 build_stages:
 - name: configure
@@ -47,4 +49,12 @@ build_stages:
           '-D DEAL_II_WITH_ZLIB:BOOL=ON',
           '-D DEAL_II_WITH_HDF5:BOOL=ON',
           '-D DEAL_II_COMPONENT_MESH_CONVERTER:BOOL=ON',
-          '-D DEAL_II_COMPONENT_PARAMETER_GUI=OFF']
+          '-D DEAL_II_COMPONENT_PARAMETER_GUI=OFF',
+          '-D DEAL_II_WITH_CXX11=ON']
+
+- when: with_mkl
+  name: configure
+  mode: update
+  extra: ["-DLAPACK_FOUND=true",
+          "-DLAPACK_INCLUDE_DIRS=${MKLROOT}/include",
+          '-DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so"']
