@@ -1,19 +1,6 @@
-# git clone https://github.com/hashdist/hashdist.git
-# git clone https://github.com/hashdist/hashstack.git
-# export PATH=hashdist/bin:$PATH
-# hit init-home
-#
-# usefull:
-#   see bash script: hit show script <name>
-#
-# module load cmake/2.8.11.2
-# module load mkl
-# module load intel64/14.0up03
-# module load gcc/4.8.1  !! Intel compilers need GCC to have C++11
-#
+# NOTE: make sure to load the gcc/4.9.2 and git module before building this profile
+# loading GCC is important due to a bug in Hashdist: https://github.com/hashdist/hashstack/issues/871#issuecomment-156453461
 # run with: ./hashdist/bin/hit build dealii.mkl.intel.yaml -j 4
-#
-# need Git for deal.ii (sources are git)
 
 extends:
 - file: hashstack/linux.yaml
@@ -34,12 +21,12 @@ parameters:
   HOST_MPIF90: mpif90
   HOST_MPIEXEC: mpiexec.hydra # mpiexec
 # host-mkl:
-  HOST_MKLROOT: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl
-  HOST_MKLPATH: /apps/intel/ComposerXE2013/composer_xe_2013.5.192/mkl/lib/intel64
+  HOST_MKLROOT: /apps/intel/ComposerXE2015/composer_xe_2015.2.164/mkl
+  HOST_MKLPATH: /apps/intel/ComposerXE2015/composer_xe_2015.2.164/mkl/lib/intel64
 # host-cmake:
   HOST_CMAKE: cmake
   PROLOGUE: |
-    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load intel64/15.0up02; module load gcc/4.9.2; module load cmake/2.8.11.2; module load mkl; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel64/15.0up02; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
 
 #echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl;
 #    source /usr/share/Modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel/2015.3; openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
