@@ -1,0 +1,31 @@
+extends: [cmake_package]
+#dependencies:
+#  build: 
+
+sources:
+- key: tar.gz:tkynykrncjnuntxulc2wy3ixdx7ceggy
+  url: https://github.com/tpaviot/oce/archive/OCE-0.17.tar.gz
+
+defaults:
+  relocatable: false
+
+build_stages:
+- name: configure
+  extra: ['-DOCE_INSTALL_PREFIX:STRING=${ARTIFACT}',
+          '-DOCE_COPY_HEADERS_BUILD:BOOL=ON',
+          '-DOCE_VISUALISATION=OFF',
+          '-DOCE_OCAF=OFF']
+
+- name: make
+  mode: replace # !!
+  handler: bash
+  after: configure
+  bash: |
+    make install/strip
+
+- name: install
+  mode: replace
+  handler: bash
+  after: make
+  bash: |
+

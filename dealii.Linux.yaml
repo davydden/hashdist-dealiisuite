@@ -57,6 +57,7 @@ packages:
     address_model: 64
   trilinos:
   p4est:
+  oce:
   numdiff:
   dealii:
     build_with: |
