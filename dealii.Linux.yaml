@@ -52,6 +52,9 @@ packages:
     debug: true
   slepc:
     version: '3.6.1'
+  boost:
+    toolset: gcc
+    address_model: 64
   trilinos:
   p4est:
   dealii:
