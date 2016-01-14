@@ -1,0 +1,8 @@
+extends: [autotools_package]
+
+sources:
+- key: tar.gz:tgxlvlpwgms7kzmechajy3o6mdjjsdc7
+  url: http://mirror6.layerjet.com/nongnu//numdiff/numdiff-5.8.1.tar.gz
+
+defaults:
+  relocatable: false

@@ -57,6 +57,7 @@ packages:
     address_model: 64
   trilinos:
   p4est:
+  numdiff:
   dealii:
     build_with: |
       blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
