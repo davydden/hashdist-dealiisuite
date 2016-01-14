@@ -29,6 +29,8 @@ packages:
   launcher:
   python:
     host: true
+  pkg-config:
+    use: host-pkg-config
   bzip2:
     use: host-bzip2
   zlib:
