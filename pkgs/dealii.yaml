@@ -1,6 +1,6 @@
 extends: [cmake_package]
 dependencies:
-  build: [blas, boost, oce, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc, {{build_with}}]
+  build: [boost, oce, petsc, parmetis, hdf5, p4est, trilinos, slepc, blas, mpi, {{build_with}}]
 
 #sources:
 #- key: tar.gz:jxpxeyzowua6dsau4km7gl6aj7libvx5
@@ -16,50 +16,72 @@ defaults:
   with_mkl: false
   without_check: false
 
+# need to replace the default cmake behavior as it ends up
+# with -DCMAKE_PREFIX_PATH="${BLAS_DIR};${BOOST_DIR};..."
+# and thus when building with host-blas, boost is also picked up from host
+# as opposed to the self-compiled boost.
+
 build_stages:
-- name: configure
-  mode: override
-  extra: ['-D CMAKE_BUILD_TYPE=DebugRelease',
-          '-D CMAKE_FIND_FRAMEWORK=LAST',
-          '-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
-          '-D CMAKE_C_COMPILER:FILEPATH=${MPICC}',
-          '-D METIS_DIR=${PARMETIS_DIR}',
-          '-D P4EST_DIR=${P4EST_DIR}',
-          '-D HDF5_DIR=${HDF5_DIR}',
-          '-D TRILINOS_DIR=${TRILINOS_DIR}',
-          '-D PETSC_DIR=${PETSC_DIR}',
-          '-D SLEPC_DIR=${SLEPC_DIR}',
-          '-D CMAKE_BUILD_TYPE=DebugRelease',
-          '-D DEAL_II_COMPONENT_DOCUMENTATION:BOOL=OFF',
-          '-D DEAL_II_WITH_ARPACK:BOOL=OFF',
-          '-D DEAL_II_WITH_BOOST:BOOL=ON',
-          '-D DEAL_II_FORCE_BUNDLED_BOOST:BOOL=OFF',
-          '-D DEAL_II_WITH_FUNCTIONPARSER:BOOL=ON',
-          '-D DEAL_II_WITH_LAPACK:BOOL=ON',
-          '-D DEAL_II_WITH_METIS:BOOL=ON',
-          '-D DEAL_II_WITH_MPI:BOOL=ON',
-          '-D DEAL_II_WITH_NETCDF:BOOL=OFF',
-          '-D DEAL_II_WITH_OPENCASCADE:BOOL=ON',
-          '-D DEAL_II_WITH_P4EST:BOOL=ON',
-          '-D DEAL_II_WITH_PETSC:BOOL=ON',
-          '-D DEAL_II_WITH_SLEPC:BOOL=ON',
-          '-D DEAL_II_WITH_THREADS:BOOL=ON',
-          '-D DEAL_II_FORCE_BUNDLED_THREADS:BOOL=OFF',
-          '-D DEAL_II_WITH_TRILINOS:BOOL=ON',
-          '-D DEAL_II_WITH_UMFPACK:BOOL=ON',
-          '-D DEAL_II_FORCE_BUNDLED_UMFPACK:BOOL=OFF',
-          '-D DEAL_II_WITH_ZLIB:BOOL=ON',
-          '-D DEAL_II_WITH_HDF5:BOOL=ON',
-          '-D DEAL_II_COMPONENT_MESH_CONVERTER:BOOL=ON',
-          '-D DEAL_II_COMPONENT_PARAMETER_GUI=OFF',
-          '-D DEAL_II_WITH_CXX11=ON']
+- name: cmake-flags
+  after: setup_builddir
+  handler: bash
+  bash: |
+    CMAKE_FLAGS="
+      -DCMAKE_INSTALL_PREFIX:PATH="${ARTIFACT}"
+      -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+      -DCMAKE_INSTALL_RPATH:STRING="${ARTIFACT}/lib"
+      -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
+      -DCMAKE_BUILD_TYPE:STRING=DebugRelease
+      -D CMAKE_FIND_FRAMEWORK=LAST
+      -D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}
+      -D CMAKE_C_COMPILER:FILEPATH=${MPICC}
+      -D METIS_DIR=${PARMETIS_DIR}
+      -D P4EST_DIR=${P4EST_DIR}
+      -D HDF5_DIR=${HDF5_DIR}
+      -D TRILINOS_DIR=${TRILINOS_DIR}
+      -D PETSC_DIR=${PETSC_DIR}
+      -D SLEPC_DIR=${SLEPC_DIR}
+      -D DEAL_II_COMPONENT_DOCUMENTATION:BOOL=OFF
+      -D DEAL_II_WITH_ARPACK:BOOL=OFF
+      -D DEAL_II_WITH_BOOST:BOOL=ON
+      -D DEAL_II_FORCE_BUNDLED_BOOST:BOOL=OFF
+      -D DEAL_II_WITH_FUNCTIONPARSER:BOOL=ON
+      -D DEAL_II_WITH_LAPACK:BOOL=ON
+      -D DEAL_II_WITH_METIS:BOOL=ON
+      -D DEAL_II_WITH_MPI:BOOL=ON
+      -D DEAL_II_WITH_NETCDF:BOOL=OFF
+      -D DEAL_II_WITH_OPENCASCADE:BOOL=ON
+      -D DEAL_II_WITH_P4EST:BOOL=ON
+      -D DEAL_II_WITH_PETSC:BOOL=ON
+      -D DEAL_II_WITH_SLEPC:BOOL=ON
+      -D DEAL_II_WITH_THREADS:BOOL=ON
+      -D DEAL_II_FORCE_BUNDLED_THREADS:BOOL=OFF
+      -D DEAL_II_WITH_TRILINOS:BOOL=ON
+      -D DEAL_II_WITH_UMFPACK:BOOL=ON
+      -D DEAL_II_FORCE_BUNDLED_UMFPACK:BOOL=OFF
+      -D DEAL_II_WITH_ZLIB:BOOL=ON
+      -D DEAL_II_WITH_HDF5:BOOL=ON
+      -D DEAL_II_COMPONENT_MESH_CONVERTER:BOOL=ON
+      -D DEAL_II_COMPONENT_PARAMETER_GUI=OFF
+      -D DEAL_II_WITH_CXX11=ON"
 
 - when: with_mkl
-  name: configure
-  mode: update
-  extra: ["-DLAPACK_FOUND=true",
-          "-DLAPACK_INCLUDE_DIRS=${MKLROOT}/include",
-          '-DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so"']
+  name: cmake-flags-mkl
+  after: cmake-flags
+  before: configure
+  handler: bash
+  bash: |
+    CMAKE_FLAGS="${CMAKE_FLAGS}
+       -DLAPACK_FOUND=true
+       -DLAPACK_INCLUDE_DIRS=${MKLROOT}/include
+       -DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so""
+
+- name: configure
+  after: cmake-flags
+  handler: bash
+  mode: replace
+  bash: |
+    ${CMAKE} ${CMAKE_FLAGS} ..
 
 - when: not without_check
   name: check
