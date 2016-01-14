@@ -1,7 +1,6 @@
-# TODO: add boost (currently fails to compile)
 extends: [cmake_package]
 dependencies:
-  build: [blas, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc, {{build_with}}]
+  build: [blas, boost, oce, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc, {{build_with}}]
 
 #sources:
 #- key: tar.gz:jxpxeyzowua6dsau4km7gl6aj7libvx5
@@ -9,17 +8,20 @@ dependencies:
 
 sources:
 - url: https://github.com/dealii/dealii.git
-  key: git:14cc553ffa8ae10214e15d25ea232dcb9e51d72e
+  key: git:2aed52502bc8470e5a3638fc8816ddca77fbf6fd
 
 
 defaults:
   relocatable: false
   with_mkl: false
+  without_check: false
 
 build_stages:
 - name: configure
   mode: override
-  extra: ['-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
+  extra: ['-D CMAKE_BUILD_TYPE=DebugRelease',
+          '-D CMAKE_FIND_FRAMEWORK=LAST',
+          '-D CMAKE_CXX_COMPILER:FILEPATH=${MPICXX}',
           '-D CMAKE_C_COMPILER:FILEPATH=${MPICC}',
           '-D METIS_DIR=${PARMETIS_DIR}',
           '-D P4EST_DIR=${P4EST_DIR}',
@@ -37,7 +39,7 @@ build_stages:
           '-D DEAL_II_WITH_METIS:BOOL=ON',
           '-D DEAL_II_WITH_MPI:BOOL=ON',
           '-D DEAL_II_WITH_NETCDF:BOOL=OFF',
-          '-D DEAL_II_WITH_OPENCASCADE:BOOL=OFF',
+          '-D DEAL_II_WITH_OPENCASCADE:BOOL=ON',
           '-D DEAL_II_WITH_P4EST:BOOL=ON',
           '-D DEAL_II_WITH_PETSC:BOOL=ON',
           '-D DEAL_II_WITH_SLEPC:BOOL=ON',
@@ -58,3 +60,10 @@ build_stages:
   extra: ["-DLAPACK_FOUND=true",
           "-DLAPACK_INCLUDE_DIRS=${MKLROOT}/include",
           '-DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so"']
+
+- when: not without_check
+  name: check
+  after: install
+  handler: bash
+  bash: |
+    make test

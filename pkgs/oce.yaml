@@ -29,3 +29,6 @@ build_stages:
   after: make
   bash: |
 
+when_build_dependency:
+- {set: 'OPENCASCADE_DIR', value: "${ARTIFACT}"}
+
