@@ -26,6 +26,15 @@ parameters:
   HOST_PKG_CONFIG_EXECUTABLE: /usr/bin/pkgconfig
 
 packages:
+  launcher:
+  python:
+    host: true
+  bzip2:
+    use: host-bzip2
+  zlib:
+    use: host-zlib
+  openssl:
+    use: host-openssl
   cmake:
     use: host-cmake
   mpi:
