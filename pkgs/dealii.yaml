@@ -71,10 +71,11 @@ build_stages:
   before: configure
   handler: bash
   bash: |
-    CMAKE_FLAGS="${CMAKE_FLAGS}
-       -DLAPACK_FOUND=true
+    CMAKE_FLAGS="
+       ${CMAKE_FLAGS}
        -DLAPACK_INCLUDE_DIRS=${MKLROOT}/include
-       -DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so""
+       -DLAPACK_LIBRARIES='${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so'
+       -DLAPACK_FOUND=true"
 
 - name: configure
   after: cmake-flags
