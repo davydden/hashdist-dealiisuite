@@ -1,6 +1,7 @@
 # NOTE: make sure to load the gcc/4.9.2 and git module before building this profile
 # loading GCC is important due to a bug in Hashdist: https://github.com/hashdist/hashstack/issues/871#issuecomment-156453461
 # run with: ./hashdist/bin/hit build dealii.mkl.intel.yaml -j 4
+# cleanup with: ./hashdist/bin/hit gc
 
 extends:
 - file: hashstack/linux.yaml
@@ -26,10 +27,7 @@ parameters:
 # host-cmake:
   HOST_CMAKE: cmake
   PROLOGUE: |
-    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel64/15.0up02; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
-
-#echo "loading modules"; module load openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; module load mkl;
-#    source /usr/share/Modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2; module load intel/2015.3; openmpi/1.8.3-intel13.1; module load cmake/2.8.11.2; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
+    source /apps/modules/init/bash; export MODULEPATH=/apps/modules/data/applications:/apps/modules/data/development:/apps/modules/data/libraries:/apps/modules/data/tools:/apps/modules/data/deprecated:/apps/modules/data/testing; echo "loading modules"; module load gcc/4.9.2 intel64/15.0up02 cmake/2.8.11.2 git; echo "setting default compilers"; export CC=icc; export CXX=icpc; export FC=ifort; export F77=ifort; export F90=ifort;
 
 packages:
   launcher:
@@ -38,8 +36,6 @@ packages:
   python:
     host: true
     use_python_host_packages: true
-#    build_with: |
-#      bzip2, sqlite
   mpi:
     use: host-mpi
   blas:
@@ -61,7 +57,6 @@ packages:
     build_with: |
       hypre, parmetis, suitesparse, superlu_dist
     download: |
-      ml
     coptflags: -O3 -march=native -mtune=native
     link: shared
     debug: false
@@ -75,8 +70,10 @@ packages:
     ignore_cxx_seek: true
   p4est:
     with_mkl: true
+  oce:
+  numdiff:
   dealii:
     with_mkl: true
     build_with: |
-      blas, boost, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
+      blas, boost, oce, numdiff, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
   gsl:
