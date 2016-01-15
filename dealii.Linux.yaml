@@ -57,7 +57,7 @@ packages:
     build_with: |
       hypre, parmetis, suitesparse, superlu_dist
     download: |
-      mumps, scalapack, blacs, ml
+      mumps, scalapack, blacs
 #    coptflags: -O2
     link: shared
     debug: true
