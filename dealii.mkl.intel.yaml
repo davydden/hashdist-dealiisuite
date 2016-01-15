@@ -31,6 +31,10 @@ parameters:
 
 packages:
   launcher:
+  bzip2:
+    use: host-bzip2
+  zlib:
+    use: host-zlib
   cmake:
     use: host-cmake
   python:
