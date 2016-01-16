@@ -1,6 +1,6 @@
 extends: [cmake_package]
-#dependencies:
-#  build: 
+dependencies:
+  build: []
 
 sources:
 - key: tar.gz:tkynykrncjnuntxulc2wy3ixdx7ceggy
@@ -16,18 +16,12 @@ build_stages:
           '-DOCE_VISUALISATION=OFF',
           '-DOCE_OCAF=OFF']
 
-- name: make
-  mode: replace # !!
-  handler: bash
-  after: configure
-  bash: |
-    make install/strip
-
 - name: install
   mode: replace
   handler: bash
   after: make
   bash: |
+    make install/strip
 
 when_build_dependency:
 - {set: 'OPENCASCADE_DIR', value: "${ARTIFACT}"}
