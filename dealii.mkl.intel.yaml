@@ -32,9 +32,7 @@ parameters:
 packages:
   launcher:
   bzip2:
-    use: host-bzip2
   zlib:
-    use: host-zlib
   cmake:
     use: host-cmake
   python:
@@ -79,5 +77,5 @@ packages:
   dealii:
     with_mkl: true
     build_with: |
-      blas, boost, oce, numdiff, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
+      blas, bzip2, zlib, boost, oce, numdiff, mpi, petsc, parmetis, hdf5, p4est, trilinos, slepc
   gsl:
