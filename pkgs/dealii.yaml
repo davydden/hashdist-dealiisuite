@@ -8,7 +8,7 @@ dependencies:
 
 sources:
 - url: https://github.com/dealii/dealii.git
-  key: git:1170fa4410cde4433c3adce63f78979fc14ef103
+  key: git:6fbf3a1254068be1c7b660684d913df13f74a6c1
 
 
 defaults:
