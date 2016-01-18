@@ -1,6 +1,6 @@
 # NOTE: make sure to load the gcc/4.9.2 and git module before building this profile
 # loading GCC is important due to a bug in Hashdist: https://github.com/hashdist/hashstack/issues/871#issuecomment-156453461
-# run with: ./hashdist/bin/hit build dealii.mkl.intel.yaml -j 4
+# run with: ./hashdist/bin/hit build dealii.mkl.intel.yaml -j 8 -k always
 # cleanup with: ./hashdist/bin/hit gc
 
 extends:
@@ -52,6 +52,7 @@ packages:
   superlu_dist:
     without_check: true
   suitesparse:
+# PETSc: use downloaded mumps/scalapack as current Hashdist's Scalapack does not support MKL
   petsc:
     version: '3.6.1'
     fortran: true
@@ -59,6 +60,7 @@ packages:
     build_with: |
       hypre, parmetis, suitesparse, superlu_dist
     download: |
+      mumps, scalapack, blacs 
     coptflags: -O3 -march=native -mtune=native
     link: shared
     debug: false
