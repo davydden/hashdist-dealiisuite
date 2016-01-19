@@ -62,6 +62,13 @@ build_stages:
           "-DLAPACK_INCLUDE_DIRS=${MKLROOT}/include",
           '-DLAPACK_LIBRARIES="${MKLPATH}/libmkl_intel_lp64.so;${MKLPATH}/libmkl_sequential.so;${MKLPATH}/libmkl_core.so"']
 
+# copy tests so that they can be run later with the installed version
+- name: copy_tests
+  after: install
+  handler: bash
+  bash: |
+    cp -r ../tests $ARTIFACT
+
 - when: not without_check
   name: check
   after: install
